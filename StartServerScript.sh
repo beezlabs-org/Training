@@ -15,8 +15,8 @@ nohup java -jar app.jar >/dev/null 2>&1 &
 else
   #jar file is running already so kill it and start it
  echo "shutting the existing server down"
- kill -9 $(lsof -ti:$port)
- echo "starting the new server"
+ kill $(lsof -i:$port | awk 'NR==2 {print $2}')
+ echo "relaunching the server"
   nohup java -jar app.jar >/dev/null 2>&1 &
   if [ $? -eq 1 ]; then
   echo "$server is started on $port"
