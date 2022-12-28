@@ -1,5 +1,5 @@
 beekeeper port : 7229
-jhive port : 7333
+jhive port : 7433
 keyserver : 7336
 queue port : 7339
 workflow port : 7341
