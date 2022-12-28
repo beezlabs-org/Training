@@ -7,11 +7,23 @@ function start() {
   port=$(echo $read_port | cut -c 13-16)
   lsof -ti:"$port"
   if [ $? -eq 0 ]; then
-    if [ "$rflag" == "r" ]; then
-      force_start $1
-    else
-      echo "$1 was already started and running in the $port"
-    fi
+    {
+      if [ "$rflag" == "r" ]; then
+        force_start $1
+      else
+        echo "$1 was already started and running in the $port"
+        if [ "$kill" == "x" ]; then
+                       if [ $? -eq 0 ]; then
+                           kill -9 $(lsof -ti:"$port")
+                           if [ $? -eq 0 ]; then
+                               echo "----------------------------------------"
+                               echo "$1 was killed successfully..."
+                               echo "----------------------------------------"
+                           fi
+                       fi
+                   fi
+      fi
+    }
   else
     nohup java -jar app.jar >/dev/null 2>&1 &
     if [ $? -eq 0 ]; then
@@ -20,6 +32,7 @@ function start() {
   fi
   cd ..
   echo ""
+
 }
 function force_start() {
   if [ $? -eq 0 ]; then
@@ -35,25 +48,29 @@ function force_start() {
   fi
   echo ""
 }
-while getopts ":r :b :j :k :q :w :l" opt; do
+
+while getopts ":r :x :b :j :k :q :w :l" opt; do
   case "$opt" in
   r)
     rflag="$opt"
     ;;
+  x)
+    kill="$opt"
+    ;;
   b)
-    start "beekeeper" "$rflag"
+    start "beekeeper" "$rflag" "$kill"
     ;;
   j)
-    start "jhive" "$rflag"
+    start "jhive" "$rflag" "$kill"
     ;;
   k)
-    start "keyserver" "$rflag"
+    start "keyserver" "$rflag" "$kill"
     ;;
   q)
-    start "queue" "$rflag"
+    start "queue" "$rflag" "$kill"
     ;;
   w)
-    start "workflow" "$rflag"
+    start "workflow" "$rflag" "$kill"
     ;;
   l)
     lsof -i6
