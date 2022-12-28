@@ -18,7 +18,7 @@ flow for options:
 steps:
 1) providing options to get the server(navigate
 to dir) to be launched
-2) providing an option with (-f to forcestart the server
+2) providing an option with (-f to force-start the server
 and without -f the server will be soft-launched)
 
 //when f is NOT an option i would like to
