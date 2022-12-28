@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 path=/home/abishek/tulip
-port_number () {
+port_number() {
   cd $path/$1 || exit
-    read_port=$(cat application-private.properties)
-    port=$(echo $read_port | cut -c 13-17)
+  read_port=$(cat application-private.properties)
+  port=$(echo $read_port | cut -c 13-17)
 }
 launch() {
   cd $path/$1 || exit
@@ -18,20 +18,20 @@ launch() {
     echo "$1 is launched on $port"
   else
     if [ "$flag" == "f" ]; then
-            force_launch $1
-          else
-            echo "$1 was already launched and running in the $port"
-            if [ "$kill" == "x" ]; then
-                           if [ $? -eq 0 ]; then
-                                 kill "$(lsof -i:$port | awk 'NR==2 {print $2}')"
-                               if [ $? -eq 0 ]; then
-                                   echo "----------------------------------------"
-                                   echo "$1 was killed successfully..."
-                                   echo "----------------------------------------"
-                               fi
-                           fi
-                       fi
+      force_launch $1
+    else
+      echo "$1 was already launched and running in the $port"
+      if [ "$kill" == "x" ]; then
+        if [ $? -eq 0 ]; then
+          kill "$(lsof -i:$port | awk 'NR==2 {print $2}')"
+          if [ $? -eq 0 ]; then
+            echo "----------------------------------------"
+            echo "$1 was killed successfully..."
+            echo "----------------------------------------"
           fi
+        fi
+      fi
+    fi
   fi
   cd ..
 }
