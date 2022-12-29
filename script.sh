@@ -3,8 +3,7 @@
 cd /training/bin/tulip
 function start() {
   cd $1
-  read_port=$(cat application-private.properties)
-  port=$(echo $read_port | cut -c 13-16)
+  port=$(awk -F = '{if ($1=="server.port") print $2}' application-private.properties)
   lsof -ti:"$port"
   if [ $? -eq 0 ]; then
     {
@@ -13,15 +12,13 @@ function start() {
       else
         echo "$1 was already started and running in the $port"
         if [ "$kill" == "x" ]; then
-                       if [ $? -eq 0 ]; then
-                           kill -9 $(lsof -ti:"$port")
-                           if [ $? -eq 0 ]; then
-                               echo "----------------------------------------"
-                               echo "$1 was killed successfully..."
-                               echo "----------------------------------------"
-                           fi
-                       fi
-                   fi
+          kill -9 $(lsof -ti:"$port")
+          if [ $? -eq 0 ]; then
+            echo "----------------------------------------"
+            echo "$1 was killed successfully..."
+            echo "----------------------------------------"
+          fi
+        fi
       fi
     }
   else
@@ -35,15 +32,13 @@ function start() {
 
 }
 function force_start() {
+  kill -9 $(lsof -ti:"$port")
   if [ $? -eq 0 ]; then
-    kill -9 $(lsof -ti:"$port")
+    echo "$1 was killed successfully..."
+    echo "Restarting the $1 server, Plz be patient..."
+    nohup java -jar app.jar >/dev/null 2>&1 &
     if [ $? -eq 0 ]; then
-      echo "$1 was killed successfully..."
-      echo "Restarting the $1 server, Plz be patient..."
-      nohup java -jar app.jar >/dev/null 2>&1 &
-      if [ $? -eq 0 ]; then
-        echo "$1 is started on $port"
-      fi
+      echo "$1 is started on $port"
     fi
   fi
   echo ""
