@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 path=/home/abishek/tulip
+shutdown() {
+  lsof -i6
+  while [ $? -eq 0 ]; do
+    kill "$(lsof -i6 | awk 'NR==2 {print $2}')"
+  done
+}
 port_number() {
   cd $path/$1 || exit
   read_port=$(cat application-private.properties)
@@ -38,7 +44,7 @@ launch() {
 force_launch() {
   port_number "$@"
   echo "shutting existing server"
-  kill -9 $(lsof -i:$port | awk 'NR==2 {print $2}')
+  kill -9 "$(lsof -i:$port | awk 'NR==2 {print $2}')"
   echo "launching the server"
   nohup java -jar app.jar >/dev/null 2>&1 &
   if [ $? -eq 0 ]; then
@@ -46,8 +52,11 @@ force_launch() {
   fi
   cd ..
 }
-while getopts ":f :x :b :j :k :q :w :l" OPTION; do
+while getopts ":s :f :x :b :j :k :q :w :l" OPTION; do
   case "$OPTION" in
+  s)
+    shutdown
+    ;;
   f)
     flag="$OPTION"
     ;;
